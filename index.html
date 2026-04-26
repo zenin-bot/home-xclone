@@ -1,0 +1,1712 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home/X</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link
+      rel="shortcut icon"
+      href="https://abs.twimg.com/favicons/twitter.3.ico"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* ── Scrollbar ── */
+      .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb {
+        background: #1f2937;
+        border-radius: 9999px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: #374151;
+      }
+      .custom-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #374151 transparent;
+      }
+
+      /* ── Responsive layout ── */
+
+      /* Desktop (≥1024px): show full 3-column layout */
+      @media (min-width: 1024px) {
+        .layout {
+          display: flex;
+        }
+        .left-sidebar {
+          display: flex;
+          flex-direction: column;
+          width: 20%;
+        }
+        .middle-feed {
+          width: 50%;
+        }
+        .right-sidebar {
+          display: block;
+          width: 30%;
+        }
+        .bottom-nav {
+          display: none;
+        }
+        .fab-post {
+          display: none;
+        } /* Desktop uses sidebar POST button */
+        body {
+          overflow: hidden;
+          height: 100vh;
+        }
+        .middle-feed {
+          height: 95vh;
+          overflow-y: auto;
+        }
+      }
+
+      /* Tablet (640–1023px): 2-column, hide right sidebar */
+      @media (min-width: 640px) and (max-width: 1023px) {
+        .layout {
+          display: flex;
+        }
+        .left-sidebar {
+          display: flex;
+          flex-direction: column;
+          width: 72px;
+          padding: 0 8px;
+        }
+        .left-sidebar .sidebar-label {
+          display: none;
+        }
+        .left-sidebar .post-btn-full {
+          display: none;
+        }
+        .left-sidebar .profile-name {
+          display: none;
+        }
+        .left-sidebar .profile-handle {
+          display: none;
+        }
+        .left-sidebar .profile-more {
+          display: none;
+        }
+        .left-sidebar .profile-box {
+          justify-content: center;
+          padding: 4px;
+        }
+        .middle-feed {
+          flex: 1;
+          height: 100vh;
+          overflow-y: auto;
+        }
+        .right-sidebar {
+          display: none;
+        }
+        .bottom-nav {
+          display: none;
+        }
+        .fab-post {
+          display: flex;
+        } /* Show FAB on tablet */
+        body {
+          overflow: hidden;
+          height: 100vh;
+        }
+      }
+
+      /* Mobile (<640px): single column, bottom nav */
+      @media (max-width: 639px) {
+        .layout {
+          display: block;
+        }
+        .left-sidebar {
+          display: none;
+        }
+        .middle-feed {
+          width: 100%;
+          height: calc(100vh - 56px); /* subtract bottom nav */
+          overflow-y: auto;
+          border: none !important;
+        }
+        .right-sidebar {
+          display: none;
+        }
+        .bottom-nav {
+          display: flex;
+        }
+        .fab-post {
+          display: flex;
+          bottom: 72px;
+        } /* above bottom nav */
+        body {
+          overflow: hidden;
+          height: 100vh;
+        }
+        .self-post {
+          display: none;
+        } /* hide compose area on mobile, use modal/FAB */
+        .self-post + hr {
+          display: none;
+        }
+      }
+
+      /* ── Bottom nav ── */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: #000;
+        border-top: 1px solid #374151;
+        z-index: 50;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        font-size: 11px;
+        gap: 2px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: background 0.15s;
+      }
+      .bottom-nav a:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* ── Mobile compose modal ── */
+      #composeModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 100;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 40px;
+      }
+      #composeModal.open {
+        display: flex;
+      }
+      #composeInner {
+        background: #000;
+        border: 1px solid #374151;
+        border-radius: 16px;
+        width: 92vw;
+        max-width: 520px;
+        padding: 16px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-black text-white">
+    <!-- ═══════════════ FAB (compose) ═══════════════ -->
+    <div
+      id="fabBtn"
+      class="fab-post w-[56px] h-[56px] justify-center items-center bg-sky-500 fixed right-5 cursor-pointer z-40 py-4 px-4 rounded-full hover:bg-sky-400 transition-all duration-150 shadow-lg"
+      onclick="document.getElementById('composeModal').classList.add('open')"
+    >
+      <span class="material-symbols-outlined text-white">edit</span>
+    </div>
+
+    <!-- ═══════════════ Main layout ═══════════════ -->
+    <div class="layout container mx-auto p-2 gap-4">
+      <!-- ────────── LEFT SIDEBAR ────────── -->
+      <div class="left-sidebar h-[90vh] pt-2">
+        <!-- Logo -->
+        <div
+          class="logo invert flex flex-row gap-3 w-fit justify-start items-center mb-4"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="w-8 h-8">
+            <g>
+              <path
+                d="M21.742 21.75l-7.563-11.179 7.056-8.321h-2.456l-5.691 6.714-4.54-6.714H2.359l7.29 10.776L2.25 21.75h2.456l6.035-7.118 4.818 7.118h6.191-.008zM7.739 3.818L18.81 20.182h-2.447L5.29 3.818h2.447z"
+              ></path>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Nav links -->
+        <nav class="flex flex-col gap-y-3 flex-grow">
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">home</span>
+            <span class="sidebar-label text-2xl">Home</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">search</span>
+            <span class="sidebar-label text-2xl">Explore</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">notifications_unread</span>
+            <span class="sidebar-label text-2xl">Notification</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">person_add</span>
+            <span class="sidebar-label text-2xl">Follow</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">chat</span>
+            <span class="sidebar-label text-2xl">Chat</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <svg viewBox="0 0 33 32" aria-hidden="true" class="w-[24px] invert">
+              <g>
+                <path
+                  d="M12.745 20.54l10.97-8.19c.539-.4 1.307-.244 1.564.38 1.349 3.288.746 7.241-1.938 9.955-2.683 2.714-6.417 3.31-9.83 1.954l-3.728 1.745c5.347 3.697 11.84 2.782 15.898-1.324 3.219-3.255 4.216-7.692 3.284-11.693l.008.009c-1.351-5.878.332-8.227 3.782-13.031L33 0l-4.54 4.59v-.014L12.743 20.544m-2.263 1.987c-3.837-3.707-3.175-9.446.1-12.755 2.42-2.449 6.388-3.448 9.852-1.979l3.72-1.737c-.67-.49-1.53-1.017-2.515-1.387-4.455-1.854-9.789-.931-13.41 2.728-3.483 3.523-4.579 8.94-2.697 13.561 1.405 3.454-.899 5.898-3.22 8.364C1.49 30.2.666 31.074 0 32l10.478-9.466"
+                ></path>
+              </g>
+            </svg>
+            <span class="sidebar-label text-2xl">Grok</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">account_circle</span>
+            <span class="sidebar-label text-2xl">Profile</span>
+          </a>
+          <a
+            class="px-[10px] flex flex-row gap-4 w-fit items-center hover:bg-gray-500 rounded-2xl cursor-pointer transition-all duration-200"
+          >
+            <span class="material-symbols-outlined">more_horiz</span>
+            <span class="sidebar-label text-2xl">More</span>
+          </a>
+        </nav>
+
+        <!-- POST button (full sidebar only) -->
+        <div class="post-btn-full mt-4">
+          <button
+            class="bg-white text-black w-full rounded-full font-bold text-[1.5rem] hover:bg-gray-900 hover:text-white transition-all duration-200"
+          >
+            POST
+          </button>
+        </div>
+        <br />
+        <!-- Profile -->
+        <div
+          class="profile-box w-full cursor-pointer flex flex-row justify-evenly items-center hover:bg-gray-400 transition-all duration-200 rounded-full hover:text-gray-900 h-[55px]"
+        >
+          <div class="w-[35px]">
+            <img
+              src="image/pic5.png"
+              onerror="
+                this.src = 'https:api.dicebear.com/7.x/avataaars/svg?seed=zenin'
+              "
+              class="rounded-full"
+            />
+          </div>
+          <span class="Middle flex flex-col py-2 profile-name">
+            <p class="font-bold text-[1.12rem] profile-name">Zenin</p>
+            <p class="font-light text-[1rem] profile-handle">@i_sunny</p>
+          </span>
+          <span class="material-symbols-outlined profile-more">more_horiz</span>
+        </div>
+      </div>
+      <!-- ────────── /LEFT SIDEBAR ────────── -->
+
+      <!-- ────────── MIDDLE FEED ────────── -->
+      <div class="middle-feed border-white border-x custom-scroll">
+        <!-- Sticky tab bar -->
+        <div class="sticky top-0 w-full backdrop-blur-xl z-10">
+          <div class="relative">
+            <ul class="flex">
+              <li
+                id="foryou"
+                class="w-1/2 tab h-[3rem] flex justify-center items-center text-xl font-semibold hover:bg-white/10 cursor-pointer transition-all duration-200"
+              >
+                For you
+              </li>
+              <li
+                id="following"
+                class="w-1/2 tab h-[3rem] flex justify-center items-center text-xl font-semibold hover:bg-white/10 cursor-pointer transition-all duration-200"
+              >
+                Following
+              </li>
+            </ul>
+            <div
+              id="slider"
+              class="absolute bottom-0 left-0 h-[3px] w-1/2 transition-all duration-300 ease-in-out bg-sky-400 shadow-[0_0_10px_2px_rgba(59,130,246,0.7)] rounded-full"
+            ></div>
+          </div>
+        </div>
+        <hr />
+        <br />
+
+        <!-- ── Compose box (desktop/tablet only via CSS) ── -->
+        <div class="self-post px-3 w-full min-h-[25vh] group">
+          <div class="firstbox flex gap-2 w-full">
+            <div class="LOGO min-h-[25vh] bg-transparent">
+              <img
+                src="image/pic5.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=zenin'
+                "
+                class="w-[50px] rounded-full"
+              />
+            </div>
+            <div
+              class="newpost inline-block w-full bg-transparent min-h-[25vh]"
+            >
+              <textarea
+                class="custom-scroll min-h-[20vh] w-full bg-transparent text-wrap outline-none"
+                placeholder="What's happening . . . "
+                maxlength="270"
+              ></textarea>
+              <button
+                class="text-blue-600 hover:bg-blue-900/50 px-2 rounded-full hidden transition-all duration-200 group-focus-within:block"
+              >
+                Everyone can see
+              </button>
+            </div>
+          </div>
+          <br />
+          <hr />
+          <br />
+          <div class="media flex w-full justify-between items-center text-xl">
+            <ul class="flex gap-3 pl-1">
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >image</span
+                >
+              </li>
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >gif_box</span
+                >
+              </li>
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >blur_on</span
+                >
+              </li>
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >menu</span
+                >
+              </li>
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >sentiment_satisfied</span
+                >
+              </li>
+              <li>
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >calendar_month</span
+                >
+              </li>
+              <li class="hidden sm:block">
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >location_on</span
+                >
+              </li>
+              <li class="hidden sm:block">
+                <span
+                  class="material-symbols-outlined hover:bg-blue-500/50 hover:text-gray-950 rounded-full p-2"
+                  >bookmark_flag</span
+                >
+              </li>
+            </ul>
+            |
+            <div class="plus flex justify-between gap-5 items-center">
+              <span
+                class="material-symbols-outlined hover:bg-gray-800 rounded-full hover:text-white cursor-pointer p-2"
+                >add</span
+              >
+              <button
+                class="bg-gray-500/90 px-2 rounded-full font-bold cursor-pointer hover:bg-green-500/80 hover:text-black transition-all duration-300"
+              >
+                POST
+              </button>
+            </div>
+          </div>
+          <br />
+        </div>
+        <hr />
+
+        <!-- ══════════ FOR YOU FEED ══════════ -->
+        <div id="forYouFeed" class="Posts m-4">
+          <!-- Post 1 -->
+          <div class="post1 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic1.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=madhura'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">madhura</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @cool_catalyst <span>· 4h</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="Post1-text m-3 w-full">
+              If Bill Gates was sinking in quicksand, what would you throw him??
+            </div>
+            <div class="Post1-img m-2 w-full">
+              <img
+                src="image/post1.png"
+                onerror="this.src = 'https:picsum.photos/seed/p1/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 2 -->
+          <div class="post2 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic2.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=meowth'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Meowthhh</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @meowth_hh <span>· 23min</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="Post2-text m-3 w-full">Be honest Men 🤔</div>
+            <div class="Post2-img m-2 w-full">
+              <img
+                src="image/post2.png"
+                onerror="this.src = 'https:picsum.photos/seed/p2/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 3 -->
+          <div class="post3 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic3.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=treehugger'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  Tree hugger &lt;3
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @tree_hugger&lt;3 <span>· 4h</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="Post3-text m-3 w-full">Name one thing…🤔</div>
+            <div class="Post3-img m-2 w-full">
+              <img
+                src="image/post3.png"
+                onerror="this.src = 'https:picsum.photos/seed/p3/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 4 -->
+          <div class="post4 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic4.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=princess'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">princess</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @his_princess <span>· 4h</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full">
+              If I delete 20 Years from your age. How old would you be??
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 5 -->
+          <div class="post5 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic6.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=bread'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  bread gangsta
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @bread_gangsta <span>· 1d</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full">
+              In case you missed it 👀 The GitHub Constellation India keynote is
+              the talk of the dev community. Watch the highlights — the key
+              moments in 18 minutes. Watch on YouTube
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 6 -->
+          <div class="post6 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic7.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=vector'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  El vector...
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @marsss_ss <span>· 1mo</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full overflow-x-auto">
+              <pre
+                class="text-sm whitespace-pre-wrap"
+              >What Income of ₹1 Crore looks like after Tax:
+
+Saudi Arab ~ ₹1 Cr.
+UAE ~ ₹1 Cr.
+Singapore ~ ₹79 Lakhs
+Bangladesh ~ ₹76 Lakhs
+India ~ ₹70 Lakhs
+USA~ ₹63 Lakhs
+UK~ ₹54.9 Lakhs
+France~ ₹45.6 Lakhs
+Japan~ ₹44.1 Lakhs
+Pakistan~ ₹2… <span class="text-sky-400 cursor-pointer">Show more</span></pre>
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 7 -->
+          <div class="post7 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic8.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=caterina'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Caterina</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @caterina_c <span>· 1s</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/post5.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/p5/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Post 8 -->
+          <div class="post8 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic9.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=rock'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Rock</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @hard_as_rock <span>· 34min</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/post6.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/p6/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0 mb-4">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ FOLLOWING FEED ══════════ -->
+        <div id="followingFeed" class="Posts m-4 hidden">
+          <!-- Following Post 1 -->
+          <div class="post1 my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic1.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=shampy'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Shampy</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @shampy_12 <span>· 1h</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full">
+              I'm a software engineer, scare me with one word
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/1post.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/f1/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 2 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic2.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=mahiru'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  Mahiru shina
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @mahiru_shina <span>· 23sec</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full">
+              Does anyone know what's the difference between the two??
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/2post.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/f2/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 3 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic3.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=amane'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  Amane fujimiya
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @fujimiya_amane&lt;3 <span>· 4h</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full">
+              Giorgia Meloni was recently spotted wearing Jhumkas..
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/3post.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/f3/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 4 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic4.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=alya'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  Alya kujou
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @kujou_alyahere <span>· 10d</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full overflow-x-auto">
+              <pre class="text-sm whitespace-pre-wrap">
+"INTROVERT FRIENDLY JOB 🚨
+
+Role: Data Entry 
+Salary: $27 - $33 per hour
+Location: 100% Remote
+
+- Accurately enter, update, and maintain data
+- Maintain confidentiality of sensitive information
+
+Let us know if you are Interested 👇"</pre
+              >
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 5 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic6.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=haruta'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Haruta</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @haruta <span>· 11d</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full overflow-x-auto">
+              <pre
+                class="text-sm whitespace-pre-wrap"
+              >"Employee: Here is my two weeks' resignation notice.
+
+HR Manager: You didn't tell me you were planning to leave.
+
+Employee: Yes, I wanted to wait until the right time.
+
+HR Manager: The right time?
+
+Employee: I'm joining a new company with a better offer.
+
+HR Manager: How much are" <span class="text-sky-400 cursor-pointer">Show more</span></pre>
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 6 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic7.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=zerotwo'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Zero two</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @zero_two <span>· 3mo</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-3 w-full overflow-x-auto">
+              <pre class="text-sm font-mono">
+￣￣￣￣￣￣￣￣￣￣￣￣|
+| Share your GitHub profile. |
+|＿＿＿＿＿＿＿＿＿＿＿|
+              \ (•◡•) /
+               \     /
+                ——
+                |   |
+                |_  |_</pre
+              >
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 7 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic8.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=akanksha'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">
+                  Akanksha purbey
+                </li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @akanksha_purbey <span>· 3s</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/4post.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/f4/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+
+          <!-- Following Post 8 -->
+          <div class="my-4 cursor-pointer w-full">
+            <div class="LOGO flex gap-3 items-center">
+              <img
+                class="w-10 rounded-full"
+                src="image/pic9.png"
+                onerror="
+                  this.src =
+                    'https:api.dicebear.com/7.x/avataaars/svg?seed=siza'
+                "
+              />
+              <ul class="flex gap-x-2 items-center flex-wrap">
+                <li class="font-bold text-[15px] hover:underline">Siza</li>
+                <li class="font-semibold text-[12px] text-gray-400">
+                  @anna0_0 <span>· 3min</span>
+                </li>
+              </ul>
+              <span class="material-symbols-outlined ml-auto">more_horiz</span>
+            </div>
+            <div class="m-2 w-full">
+              <img
+                src="image/5post.jpg"
+                onerror="this.src = 'https:picsum.photos/seed/f5/600/400'"
+                class="transition-all ease-in duration-200 hover:rounded-[25px] object-cover hover:shadow-[0_0_20px_5px_rgba(255,255,255,0.2)] rounded-[20px] w-full"
+              />
+            </div>
+            <div class="reactions my-0 py-0 mb-4">
+              <ul class="flex gap-2 sm:gap-5 justify-evenly">
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-white/50 transition-all duration-200 ease-in p-2 sm:p-3 rounded-full hover:text-black text-[20px]"
+                    >comment</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-green-500/50 transition-all duration-200 ease-in p-2 sm:p-3 hover:text-black rounded-full text-[20px]"
+                    >low_priority</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-pink-700/50 transition-all duration-200 ease-in hover:text-pink-300 p-2 sm:p-3 rounded-full text-[20px]"
+                    >favorite</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="material-symbols-outlined hover:bg-yellow-400/50 transition-all duration-200 ease-in hover:text-sky-500 rounded-full p-2 sm:p-3 text-[20px]"
+                    >bar_chart</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ────────── /MIDDLE FEED ────────── -->
+
+      <!-- ────────── RIGHT SIDEBAR ────────── -->
+      <div
+        class="right-sidebar h-[95vh] overflow-y-auto px-4 overflow-x-hidden custom-scroll"
+      >
+        <div class="searchbar sticky top-0 rounded-full backdrop-blur-xl">
+          <input
+            type="text"
+            placeholder="Search here"
+            class="w-full backdrop-blur-xl bg-transparent border border-white rounded-full py-2 pl-5 cursor-pointer focus:border-blue-500 focus:outline-none hover:border-blue-500"
+          />
+        </div>
+        <br />
+
+        <div class="secondbox w-full border border-white rounded-[25px]">
+          <h1 class="flex flex-row gap-2 w-full text-[12px] font-medium p-4">
+            SUBSCRIBE TO PREMIUM
+            <span class="bg-green-800 rounded-[25px] text-green-400 px-2"
+              >50% off</span
+            >
+          </h1>
+          <p class="text-[14px] px-2">
+            Get rid of ads, see your analytics, boost your replies and unlock
+            20+ features.
+          </p>
+          <br />
+          <button
+            class="bg-green-500 text-white font-bold ml-4 mb-4 px-2 rounded-[25px] hover:bg-green-950 hover:text-green-500 transition-all duration-200"
+          >
+            SUBSCRIBE
+          </button>
+        </div>
+        <br /><br />
+
+        <div class="thirdbox w-full border border-white rounded-[25px]">
+          <div class="heading m-4 px-2">
+            <h1><b>What's happening</b></h1>
+          </div>
+          <ul class="flex flex-col gap-2 w-full px-3">
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">Politics · Trending</p>
+                <h1><b>#Love isreal</b></h1>
+              </div>
+            </li>
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">country · Trending</p>
+                <h1><b>#Italy</b></h1>
+              </div>
+            </li>
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">Entertainment · Trending</p>
+                <h1><b>#Latent show</b></h1>
+              </div>
+            </li>
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">Technology · Trending</p>
+                <h1><b>#Ai is best</b></h1>
+              </div>
+            </li>
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">Games · Trending</p>
+                <h1><b>#EWC</b></h1>
+              </div>
+            </li>
+            <li>
+              <div class="lists p-2 hover:bg-gray-500/10 cursor-pointer">
+                <p class="text-xs text-gray-400">Sports · Trending</p>
+                <h1><b>#baseball</b></h1>
+              </div>
+            </li>
+            <div
+              class="more w-full my-4 p-4 hover:bg-gray-500/10 cursor-pointer text-blue-500"
+            >
+              <p>See more</p>
+            </div>
+          </ul>
+        </div>
+        <br /><br />
+
+        <div class="fourthbox border border-white rounded-[25px] p-4">
+          <h1 class="font-bold text-2xl">Who to follow</h1>
+          <br />
+          <ul>
+            <li
+              class="flex flex-row gap-x-5 justify-evenly items-center w-full p-2 hover:bg-gray-500/10 cursor-pointer"
+            >
+              <div class="w-10">
+                <img
+                  src="image/pic1.png"
+                  onerror="
+                    this.src =
+                      'https:api.dicebear.com/7.x/avataaars/svg?seed=rntx'
+                  "
+                  class="rounded-full"
+                />
+              </div>
+              <div
+                class="overflow-hidden text-ellipsis whitespace-nowrap w-[100px]"
+              >
+                <p class="font-medium text-lg hover:underline">rntx esports</p>
+                <span class="font-thin text-sm">@rntxesports_org</span>
+              </div>
+              <button
+                class="bg-white text-black font-bold py-2 px-4 rounded-full hover:bg-gray-200/50 hover:text-white transition-all duration-200"
+              >
+                Follow
+              </button>
+            </li>
+            <li
+              class="flex flex-row gap-x-5 justify-evenly items-center w-full p-2 hover:bg-gray-500/10 cursor-pointer"
+            >
+              <div class="w-10">
+                <img
+                  src="image/pic2.png"
+                  onerror="
+                    this.src =
+                      'https:api.dicebear.com/7.x/avataaars/svg?seed=meowth2'
+                  "
+                  class="rounded-full"
+                />
+              </div>
+              <div
+                class="overflow-hidden text-ellipsis whitespace-nowrap w-[100px]"
+              >
+                <p class="font-medium text-lg hover:underline">Meowthhh</p>
+                <span class="font-thin text-sm">@meowth_hh</span>
+              </div>
+              <button
+                class="bg-white text-black font-bold py-2 px-4 rounded-full hover:bg-gray-200/50 hover:text-white transition-all duration-200"
+              >
+                Follow
+              </button>
+            </li>
+            <li
+              class="flex flex-row gap-x-5 justify-evenly items-center w-full p-2 hover:bg-gray-500/10 cursor-pointer"
+            >
+              <div class="w-10">
+                <img
+                  src="image/pic3.png"
+                  onerror="
+                    this.src =
+                      'https:api.dicebear.com/7.x/avataaars/svg?seed=tree2'
+                  "
+                  class="rounded-full"
+                />
+              </div>
+              <div
+                class="overflow-hidden text-ellipsis whitespace-nowrap w-[100px]"
+              >
+                <p class="font-medium text-lg hover:underline">Tree hugger</p>
+                <span class="font-thin text-sm">@tree_hugger_</span>
+              </div>
+              <button
+                class="bg-white text-black font-bold py-2 px-4 rounded-full hover:bg-gray-200/50 hover:text-white transition-all duration-200"
+              >
+                Follow
+              </button>
+            </li>
+            <br />
+            <div
+              class="p-2 hover:bg-gray-500/10 cursor-pointer text-blue-500 hover:underline"
+            >
+              <p>See more</p>
+            </div>
+          </ul>
+        </div>
+        <br />
+        <footer>
+          <div
+            class="flex gap-x-4 text-sm text-gray-500 flex-wrap cursor-pointer"
+          >
+            <span class="hover:underline">Terms of Service</span>|
+            <span class="hover:underline">Privacy Policy</span>|
+            <span class="hover:underline">Cookie Policy</span>|
+            <span class="hover:underline">Accessibility</span>|
+            <span class="hover:underline">Ads info</span>|
+            <span class="hover:underline">More....</span>
+            <span class="hover:underline">&copy; 2026 X Corp.</span>
+          </div>
+          <br /><br />
+        </footer>
+      </div>
+      <!-- ────────── /RIGHT SIDEBAR ────────── -->
+    </div>
+
+    <!-- ═══════════════ BOTTOM NAV (mobile only) ═══════════════ -->
+    <nav class="bottom-nav">
+      <a><span class="material-symbols-outlined text-[22px]">home</span></a>
+      <a><span class="material-symbols-outlined text-[22px]">search</span></a>
+      <a
+        ><span class="material-symbols-outlined text-[22px]"
+          >notifications_unread</span
+        ></a
+      >
+      <a><span class="material-symbols-outlined text-[22px]">chat</span></a>
+      <a>
+        <img
+          src="image/pic5.png"
+          onerror="
+            this.src = 'https:api.dicebear.com/7.x/avataaars/svg?seed=zenin'
+          "
+          class="w-7 h-7 rounded-full object-cover"
+        />
+      </a>
+    </nav>
+
+    <!-- ═══════════════ MOBILE COMPOSE MODAL ═══════════════ -->
+    <div id="composeModal">
+      <div id="composeInner">
+        <div class="flex justify-between items-center mb-3">
+          <button
+            onclick="
+              document.getElementById('composeModal').classList.remove('open')
+            "
+            class="text-white hover:bg-gray-800 rounded-full p-1"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+          <button
+            class="bg-sky-500 text-white font-bold px-5 py-1.5 rounded-full hover:bg-sky-400 transition-all"
+          >
+            Post
+          </button>
+        </div>
+        <div class="flex gap-3">
+          <img
+            src="image/pic5.png"
+            onerror="
+              this.src = 'https:api.dicebear.com/7.x/avataaars/svg?seed=zenin'
+            "
+            class="w-10 h-10 rounded-full object-cover"
+          />
+          <textarea
+            class="flex-1 bg-transparent outline-none text-white text-lg resize-none min-h-[120px]"
+            placeholder="What's happening?!"
+            maxlength="270"
+          ></textarea>
+        </div>
+        <hr class="border-gray-700 mt-3" />
+        <div class="flex gap-4 mt-3 text-sky-400">
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-sky-900/30 p-1 rounded-full"
+            >image</span
+          >
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-sky-900/30 p-1 rounded-full"
+            >gif_box</span
+          >
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-sky-900/30 p-1 rounded-full"
+            >sentiment_satisfied</span
+          >
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-sky-900/30 p-1 rounded-full"
+            >location_on</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab switching
+      const foryouBtn = document.getElementById("foryou");
+      const followBtn = document.getElementById("following");
+      const forYouFeed = document.getElementById("forYouFeed");
+      const followFeed = document.getElementById("followingFeed");
+      const slider = document.getElementById("slider");
+
+      foryouBtn.addEventListener("click", () => {
+        slider.style.left = "0%";
+        forYouFeed.classList.remove("hidden");
+        followFeed.classList.add("hidden");
+      });
+
+      followBtn.addEventListener("click", () => {
+        slider.style.left = "50%";
+        followFeed.classList.remove("hidden");
+        forYouFeed.classList.add("hidden");
+      });
+
+      // Close modal on backdrop click
+      document
+        .getElementById("composeModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) this.classList.remove("open");
+        });
+    </script>
+  </body>
+</html>
