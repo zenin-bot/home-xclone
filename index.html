@@ -14,7 +14,6 @@
     />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* ── Scrollbar ── */
       .custom-scroll::-webkit-scrollbar {
         width: 6px;
       }
@@ -32,7 +31,7 @@
 
       /* ── Responsive layout ── */
 
-      /* Desktop (≥1024px): show full 3-column layout */
+ 
       @media (min-width: 1024px) {
         .layout {
           display: flex;
@@ -54,7 +53,7 @@
         }
         .fab-post {
           display: none;
-        } /* Desktop uses sidebar POST button */
+        } 
         body {
           overflow: hidden;
           height: 100vh;
@@ -65,7 +64,6 @@
         }
       }
 
-      /* Tablet (640–1023px): 2-column, hide right sidebar */
       @media (min-width: 640px) and (max-width: 1023px) {
         .layout {
           display: flex;
@@ -108,14 +106,14 @@
         }
         .fab-post {
           display: flex;
-        } /* Show FAB on tablet */
+        } 
         body {
           overflow: hidden;
           height: 100vh;
         }
       }
 
-      /* Mobile (<640px): single column, bottom nav */
+    
       @media (max-width: 639px) {
         .layout {
           display: block;
@@ -125,7 +123,7 @@
         }
         .middle-feed {
           width: 100%;
-          height: calc(100vh - 56px); /* subtract bottom nav */
+          height: calc(100vh - 56px);
           overflow-y: auto;
           border: none !important;
         }
@@ -138,20 +136,20 @@
         .fab-post {
           display: flex;
           bottom: 72px;
-        } /* above bottom nav */
+        } 
         body {
           overflow: hidden;
           height: 100vh;
         }
         .self-post {
           display: none;
-        } /* hide compose area on mobile, use modal/FAB */
+        } 
         .self-post + hr {
           display: none;
         }
       }
 
-      /* ── Bottom nav ── */
+     
       .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -180,7 +178,7 @@
         background: rgba(255, 255, 255, 0.1);
       }
 
-      /* ── Mobile compose modal ── */
+   
       #composeModal {
         display: none;
         position: fixed;
@@ -206,7 +204,7 @@
   </head>
 
   <body class="bg-black text-white">
-    <!-- ═══════════════ FAB (compose) ═══════════════ -->
+ 
     <div
       id="fabBtn"
       class="fab-post w-[56px] h-[56px] justify-center items-center bg-sky-500 fixed right-5 cursor-pointer z-40 py-4 px-4 rounded-full hover:bg-sky-400 transition-all duration-150 shadow-lg"
@@ -215,7 +213,7 @@
       <span class="material-symbols-outlined text-white">edit</span>
     </div>
 
-    <!-- ═══════════════ Main layout ═══════════════ -->
+
     <div class="layout container mx-auto p-2 gap-4">
       <!-- ────────── LEFT SIDEBAR ────────── -->
       <div class="left-sidebar h-[90vh] pt-2">
@@ -299,7 +297,7 @@
           </button>
         </div>
         <br />
-        <!-- Profile -->
+    
         <div
           class="profile-box w-full cursor-pointer flex flex-row justify-evenly items-center hover:bg-gray-400 transition-all duration-200 rounded-full hover:text-gray-900 h-[55px]"
         >
@@ -319,11 +317,9 @@
           <span class="material-symbols-outlined profile-more">more_horiz</span>
         </div>
       </div>
-      <!-- ────────── /LEFT SIDEBAR ────────── -->
-
-      <!-- ────────── MIDDLE FEED ────────── -->
+   
       <div class="middle-feed border-white border-x custom-scroll">
-        <!-- Sticky tab bar -->
+      
         <div class="sticky top-0 w-full backdrop-blur-xl z-10">
           <div class="relative">
             <ul class="flex">
@@ -349,7 +345,6 @@
         <hr />
         <br />
 
-        <!-- ── Compose box (desktop/tablet only via CSS) ── -->
         <div class="self-post px-3 w-full min-h-[25vh] group">
           <div class="firstbox flex gap-2 w-full">
             <div class="LOGO min-h-[25vh] bg-transparent">
@@ -448,9 +443,8 @@
         </div>
         <hr />
 
-        <!-- ══════════ FOR YOU FEED ══════════ -->
         <div id="forYouFeed" class="Posts m-4">
-          <!-- Post 1 -->
+   
           <div class="post1 my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
@@ -510,7 +504,7 @@
           </div>
           <hr />
 
-          <!-- Post 2 -->
+         
           <div class="post2 my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
@@ -681,7 +675,7 @@
           </div>
           <hr />
 
-          <!-- Post 5 -->
+        
           <div class="post5 my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
@@ -920,7 +914,7 @@ Pakistan~ ₹2… <span class="text-sky-400 cursor-pointer">Show more</span></pr
           </div>
         </div>
 
-        <!-- ══════════ FOLLOWING FEED ══════════ -->
+
         <div id="followingFeed" class="Posts m-4 hidden">
           <!-- Following Post 1 -->
           <div class="post1 my-4 cursor-pointer w-full">
@@ -982,7 +976,6 @@ Pakistan~ ₹2… <span class="text-sky-400 cursor-pointer">Show more</span></pr
           </div>
           <hr />
 
-          <!-- Following Post 2 -->
           <div class="my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
@@ -1044,7 +1037,6 @@ Pakistan~ ₹2… <span class="text-sky-400 cursor-pointer">Show more</span></pr
           </div>
           <hr />
 
-          <!-- Following Post 3 -->
           <div class="my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
@@ -1106,7 +1098,6 @@ Pakistan~ ₹2… <span class="text-sky-400 cursor-pointer">Show more</span></pr
           </div>
           <hr />
 
-          <!-- Following Post 4 -->
           <div class="my-4 cursor-pointer w-full">
             <div class="LOGO flex gap-3 items-center">
               <img
